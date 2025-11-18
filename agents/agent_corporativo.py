@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.tools import Tool
+from langchain_community.tools import Tool
 from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
 from chains.summarizer import chain_resumo
