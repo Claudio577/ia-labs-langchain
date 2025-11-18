@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain_community.tools import Tool
+from langchain_core.tools import Tool
 from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
 from chains.summarizer import chain_resumo
@@ -28,8 +28,10 @@ def criar_agente_corporativo():
         )
     ]
 
-    # Cria o agente no estilo ReAct (novo padrão LangChain)
-    agent = create_react_agent(llm=llm, tools=tools)
+    agent = create_react_agent(
+        llm=llm,
+        tools=tools
+    )
 
     executor = AgentExecutor(
         agent=agent,
