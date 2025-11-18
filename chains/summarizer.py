@@ -1,23 +1,20 @@
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
 from config import OPENAI_MODEL
 
-prompt = PromptTemplate(
-    input_variables=["texto"],
-    template="""
-    Gere um **Resumo Executivo Profissional** para a IA-Labs.
-    Foque em:
-    - Pontos-chave
-    - Riscos
-    - Melhorias
-    - Oportunidades de automação
-    - Uso de IA e dados
+prompt = ChatPromptTemplate.from_template("""
+Gere um **Resumo Executivo Profissional** para a IA-Labs.
+Inclua:
+- Pontos-chave
+- Riscos
+- Oportunidades
+- Sugestões de automação com IA
 
-    Texto base:
-    {texto}
-    """
-)
+Texto base:
+{texto}
+""")
 
 llm = ChatOpenAI(model=OPENAI_MODEL, temperature=0.2)
-chain_resumo = LLMChain(llm=llm, prompt=prompt)
+
+def chain_resumo(texto):
+    return llm.invoke(prompt.format(texto=texto)).content
