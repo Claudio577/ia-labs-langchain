@@ -1,7 +1,8 @@
 from langchain_openai import ChatOpenAI
-from langchain.agents import initialize_agent, Tool
-from chains.summarizer import chain_resumo
+from langchain.tools import Tool
+from langchain_community.agent_toolkits import initialize_agent
 from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
 def criar_agente_corporativo():
@@ -16,22 +17,22 @@ def criar_agente_corporativo():
 
     tools = [
         Tool(
-            name="Buscar em Documentos IA-Labs",
-            func=retriever.get_relevant_documents,
-            description="Usado para buscar informações nos documentos enviados."
+            name="BuscarDocumentos",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Busca trechos relevantes nos documentos enviados."
         ),
         Tool(
-            name="Gerar Resumo Executivo",
-            func=chain_resumo.run,
-            description="Cria um resumo executivo claro e corporativo."
+            name="ResumoExecutivo",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Gera resumo executivo profissional."
         )
     ]
 
-    agent = initialize_agent(
+    agente = initialize_agent(
         tools=tools,
         llm=llm,
         agent="zero-shot-react-description",
         verbose=True
     )
 
-    return agent
+    return agente
