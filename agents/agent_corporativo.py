@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.tools import Tool
+from langchain_community.tools import Tool
 from langchain_community.agent_toolkits import initialize_agent
 from ingest.vector_store import carregar_vector_store
 from chains.summarizer import chain_resumo
@@ -36,3 +36,4 @@ def criar_agente_corporativo():
     )
 
     return agente
+
