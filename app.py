@@ -29,7 +29,7 @@ agente_nome = st.sidebar.selectbox(
     ]
 )
 
-@st.cache_resource
+
 def carregar_agente(nome):
     if nome == "Assistente Corporativo":
         return criar_agente_corporativo()
