@@ -64,9 +64,12 @@ st.subheader(f"💬 Conversar com: {agente_nome}")
 query = st.text_area("Digite sua pergunta")
 
 if st.button("Enviar"):
-    agente = carregar_agente(agente_nome)
+    agente = carregar_agente()
+    resposta = agente.run(query)
+    st.write("### Resposta")
+    st.write(resposta)
 
-    resposta = agente.invoke({"input": query})
+    resposta = agente.run(query)
 
     st.write("### Resposta")
     st.write(resposta["output"])
