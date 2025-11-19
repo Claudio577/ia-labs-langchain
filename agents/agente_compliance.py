@@ -1,35 +1,26 @@
-from langchain.agents import AgentExecutor, create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
-from langchain_core.prompts import PromptTemplate
+from langchain.agents import initialize_agent, AgentType
 
 def criar_agente_compliance():
     llm = get_llm()
 
     tools = [
         Tool(
-            name="Resumo Compliance",
+            name="Análise de Compliance",
             func=chain_resumo,
-            description="Resume documentos e normas de compliance."
+            description="Analisa e resume documentos de compliance."
         )
     ]
 
-    prompt = PromptTemplate(
-        template="""
-Você é especialista em compliance, ética corporativa e governança.
-Responda com foco em políticas internas, boas práticas e riscos.
-
-Pergunta do usuário: {input}
-""",
-        input_variables=["input"],
-    )
-
-    agent = create_react_agent(
-        llm=llm,
+    agent = initialize_agent(
         tools=tools,
-        prompt=prompt
+        llm=llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=False,
+        handle_parsing_errors=True
     )
 
-    return AgentExecutor(agent=agent, tools=tools, verbose=False)
+    return agent
 
