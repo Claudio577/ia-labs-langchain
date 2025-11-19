@@ -11,7 +11,7 @@ def criar_agente_executivo():
         Tool(
             name="Resumo Executivo",
             func=chain_resumo,
-            description="Gera resumos estratégicos para decisões executivas."
+            description="Cria resumos estratégicos para diretoria."
         )
     ]
 
