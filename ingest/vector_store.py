@@ -11,22 +11,16 @@ _vector_store_global = None
 # Criação da base vetorial
 # -----------------------------------------------
 def criar_vector_store(chunks):
-    """
-    Cria e salva a vector store global a partir dos documentos enviados.
-    Funciona com DocumentChunks (que possuem page_content) ou strings.
-    """
     global _vector_store_global
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
-    # Aceita tanto objetos do LangChain quanto strings
     textos = [
         c.page_content if hasattr(c, "page_content") else str(c)
         for c in chunks
     ]
 
     _vector_store_global = FAISS.from_texts(textos, embeddings)
-
     return _vector_store_global
 
 
