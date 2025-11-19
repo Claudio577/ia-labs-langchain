@@ -1,44 +1,42 @@
 from langchain_openai import ChatOpenAI
-from langchain.agents import AgentExecutor
-from langchain.agents.openai_functions_agent import OpenAIFunctionsAgent
-from langchain.prompts import ChatPromptTemplate
-from langchain.tools import tool
+from langchain.tools import Tool
+from langchain.agents import create_react_agent, AgentExecutor
+from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
-# ======== Ferramenta RAG (placeholder) ========
-@tool
-def buscar_documentos(query: str) -> str:
-    """Busca informações relevantes nos documentos enviados."""
-    return f"Buscando informações sobre: {query}"
-
-tools = [buscar_documentos]
-
-# ======== Prompt ========
-prompt = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        "Você é um assistente corporativo profissional da IA-Labs."
-    ),
-    ("user", "{input}")
-])
 
 def criar_agente_corporativo():
-
     llm = ChatOpenAI(
-        temperature=0.2,
-        model=OPENAI_MODEL
+        model=OPENAI_MODEL,
+        temperature=0.2
     )
 
-    agent = OpenAIFunctionsAgent(
+    vectordb = carregar_vector_store()
+    retriever = vectordb.as_retriever()
+
+    tools = [
+        Tool(
+            name="BuscarDocumentos",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Busca trechos relevantes nos documentos enviados."
+        ),
+        Tool(
+            name="ResumoExecutivo",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Gera resumo executivo profissional."
+        )
+    ]
+
+    agent = create_react_agent(
         llm=llm,
-        tools=tools,
-        prompt=prompt
+        tools=tools
     )
 
     executor = AgentExecutor(
         agent=agent,
         tools=tools,
-        verbose=False
+        verbose=True
     )
 
     return executor
