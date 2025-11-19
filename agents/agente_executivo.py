@@ -1,53 +1,35 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain.tools import Tool
+from langchain.agents import create_react_agent, AgentExecutor
 from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
-def criar_agente_executivo():
 
+def criar_agente_executivo():
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
-        temperature=0.2
+        temperature=0.1
     )
 
     vectordb = carregar_vector_store()
     retriever = vectordb.as_retriever()
 
-    prompt = ChatPromptTemplate.from_template("""
-    Você é o **Agente Executivo IA-Labs**, especialista em:
-    - Resumos executivos
-    - Insights estratégicos
-    - Identificação de riscos e oportunidades
-    - Plano de ação
-    - KPIs
-    - Visão consultiva corporativa
+    tools = [
+        Tool(
+            name="BuscaEstratégica",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Busca insights estratégicos e informações relevantes."
+        ),
+        Tool(
+            name="ResumoC-Level",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Resumo direto ao ponto para diretores e executivos."
+        )
+    ]
 
-    Documentos relevantes:
-    {contexto}
+    agent = create_react_agent(llm=llm, tools=tools)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-    Pergunta:
-    {input}
+    return executor
 
-    Gere uma resposta estruturada:
-
-    🎯 Insight principal  
-    ⚠️ Riscos identificados  
-    💡 Oportunidades observadas  
-    📈 KPIs recomendados  
-    🧠 Ações sugeridas pela IA-Labs  
-    """)
-
-    def executar(texto):
-        docs = retriever.get_relevant_documents(texto)
-        contexto = "\n\n".join([d.page_content for d in docs])
-
-        return llm.invoke(prompt.format(
-            contexto=contexto,
-            input=texto
-        )).content
-
-    class Wrapper:
-        def run(self, texto):
-            return executar(texto)
-
-    return Wrapper()
