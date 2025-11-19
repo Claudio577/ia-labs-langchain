@@ -1,17 +1,19 @@
 streamlit==1.39.0
 
-# LangChain — versões estáveis e compatíveis com OpenAI (2025)
-langchain==0.2.14
-langchain-core==0.2.36
-langchain-community==0.2.12
-langchain-openai==0.1.22
+# --- LangChain compatível com OpenAI 2025 ---
+langchain==0.3.6
+langchain-core==0.3.15
+langchain-community==0.3.6
+langchain-openai==0.1.14
 
-# Vector Store
+# --- OpenAI SDK atualizado ---
+openai==1.43.0
+
+# --- Vector DB ---
 chromadb==0.5.5
 
-# Utilidades
+# --- Utilidades ---
 tiktoken
 pypdf
 python-docx
 python-dotenv
-openai==1.40.2
