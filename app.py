@@ -56,20 +56,14 @@ if files:
     st.success("Base atualizada com sucesso!")
 
 
-# ==============================
+# -------------------------
 # Chat com o agente
-# ==============================
+# -------------------------
 st.subheader(f"💬 Conversar com: {agente_nome}")
-
 query = st.text_area("Digite sua pergunta")
 
 if st.button("Enviar"):
-    agente = carregar_agente()
+    agente = carregar_agente()  # Aqui dentro!
     resposta = agente.invoke({"input": query})
-    st.write(resposta)
-
-
-    resposta = agente.run(query)
-
     st.write("### Resposta")
-    st.write(resposta["output"])
+    st.write(resposta)
