@@ -1,4 +1,5 @@
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor
+from langchain.agents.react.agent import create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
