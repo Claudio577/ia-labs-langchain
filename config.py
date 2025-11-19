@@ -1,6 +1,9 @@
 import os
+from langchain_openai import ChatOpenAI
 
-OPENAI_MODEL = "gpt-4o"
-EMBEDDING_MODEL = "text-embedding-3-large"
-
-CHROMA_PATH = "chroma_db"
+def get_llm():
+    return ChatOpenAI(
+        model="gpt-4o-mini",
+        temperature=0.1,
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
