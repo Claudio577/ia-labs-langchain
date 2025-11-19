@@ -1,13 +1,13 @@
 streamlit==1.39.0
 
-# LangChain CORE (todas compatíveis entre si)
-langchain==0.3.9
-langchain-core==0.3.21
-langchain-community==0.3.9
-langchain-openai==0.2.0
-langchain-text-splitters==0.3.0
+# LangChain — versões estáveis e compatíveis
+langchain==0.2.14
+langchain-core==0.2.36
+langchain-community==0.2.12
+langchain-openai==0.1.22
 
 # VectorDB
+faiss-cpu
 chromadb==0.5.5
 
 # Utilidades
@@ -15,5 +15,4 @@ tiktoken
 pypdf
 python-docx
 python-dotenv
-openai>=1.12.0
-langchain-openai>=0.1.5
+openai>=1.29.0
