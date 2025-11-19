@@ -1,4 +1,5 @@
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor
+from langchain.agents.react.agent import create_react_agent
 from config import get_llm
 
 def criar_agente_juridico():
