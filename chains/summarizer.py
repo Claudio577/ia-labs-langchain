@@ -1,20 +1,15 @@
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from config import OPENAI_MODEL
-
-prompt = ChatPromptTemplate.from_template("""
-Gere um **Resumo Executivo Profissional** para a IA-Labs.
-Inclua:
-- Pontos-chave
-- Riscos
-- Oportunidades
-- Sugestões de automação com IA
-
-Texto base:
-{texto}
-""")
-
-llm = ChatOpenAI(model=OPENAI_MODEL, temperature=0.2)
+from config import get_llm
 
 def chain_resumo(texto):
-    return llm.invoke(prompt.format(texto=texto)).content
+    llm = get_llm()
+
+    prompt = f"""
+Resuma de forma objetiva e corporativa o conteúdo abaixo:
+
+{texto}
+
+Resumo:
+"""
+
+    resposta = llm.invoke(prompt)
+    return resposta.content
