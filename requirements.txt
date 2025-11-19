@@ -1,15 +1,15 @@
 streamlit==1.39.0
 
-# LangChain estável e compatível entre os pacotes
-langchain==0.3.4
-langchain-community==0.3.4
+# LangChain CORE
+langchain==0.3.6
+langchain-community==0.3.6
 langchain-openai==0.1.8
-
-# Suporte aos textos e RAG
 langchain-text-splitters==0.3.2
+
+# VectorDB
 chromadb==0.5.5
 
-# Utilidades necessárias
+# Utilidades
 tiktoken
 pypdf
 python-docx
