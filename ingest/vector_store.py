@@ -13,13 +13,17 @@ _vector_store_global = None
 def criar_vector_store(chunks):
     """
     Cria e salva a vector store global a partir dos documentos enviados.
+    Funciona com DocumentChunks (que possuem page_content) ou strings.
     """
     global _vector_store_global
 
     embeddings = OpenAIEmbeddings()
 
-    # Extrai apenas o texto dos chunks (List[str])
-    textos = [c.page_content for c in chunks]
+    # Aceita tanto objetos do LangChain quanto strings
+    textos = [
+        c.page_content if hasattr(c, "page_content") else str(c)
+        for c in chunks
+    ]
 
     _vector_store_global = FAISS.from_texts(textos, embeddings)
 
