@@ -1,34 +1,15 @@
-from langchain_openai import ChatOpenAI
-from langchain.tools import Tool
-from langchain.agents import create_react_agent, AgentExecutor
-from ingest.vector_store import carregar_vector_store
-from chains.summarizer import chain_resumo
-from config import OPENAI_MODEL
-
+from langchain.agents import AgentExecutor, create_react_agent
+from config import get_llm
 
 def criar_agente_financeiro():
-    llm = ChatOpenAI(
-        model=OPENAI_MODEL,
-        temperature=0.15
-    )
+    llm = get_llm()
 
-    vectordb = carregar_vector_store()
-    retriever = vectordb.as_retriever()
+    prompt = """
+Você é um analista financeiro corporativo.
+Gere análises, interpretações de indicadores e explicações de relatórios financeiros.
+Use linguagem simples e profissional.
+"""
 
-    tools = [
-        Tool(
-            name="BuscarIndicadores",
-            func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca dados financeiros, projeções e KPIs."
-        ),
-        Tool(
-            name="ResumoFinanceiro",
-            func=lambda texto: chain_resumo.run(texto),
-            description="Cria resumo financeiro com métricas importantes."
-        )
-    ]
+    agent = create_react_agent(llm=llm, tools=[], prompt=prompt)
 
-    agent = create_react_agent(llm=llm, tools=tools)
-    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-    return executor
+    return AgentExecutor(agent=agent, tools=[], verbose=False)
