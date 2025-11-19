@@ -2,6 +2,7 @@ from langchain.agents import AgentExecutor, create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
+from langchain_core.prompts import PromptTemplate
 
 def criar_agente_corporativo():
     llm = get_llm()
@@ -14,26 +15,20 @@ def criar_agente_corporativo():
         )
     ]
 
-    prompt = """
-Você é um assistente corporativo profissional.
-Forneça respostas claras, diretas e objetivas.
-Se precisar, use ferramentas de resumo ou análise.
-"""
+    prompt = PromptTemplate(
+        template="""
+Você é um assistente corporativo especializado em comunicação empresarial.
+Responda com clareza, objetividade e foco em tomada de decisão.
 
-    # Cria agente REACT no novo formato do LangChain
+Pergunta do usuário: {input}
+""",
+        input_variables=["input"],
+    )
+
     agent = create_react_agent(
         llm=llm,
         tools=tools,
         prompt=prompt
     )
 
-    # Executor do agente
-    executor = AgentExecutor(
-        agent=agent,
-        tools=tools,
-        verbose=False,
-        handle_parsing_errors=True
-    )
-
-    return executor
-
+    return AgentExecutor(agent=agent, tools=tools, verbose=False)
