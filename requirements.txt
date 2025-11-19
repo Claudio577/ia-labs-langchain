@@ -1,9 +1,11 @@
 streamlit==1.39.0
-langchain==0.3.11
-langchain-community==0.3.11
-langchain-openai==0.1.2
 
-faiss-cpu==1.7.4
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-openai==0.2.0
+
+chromadb==0.5.5
+
 tiktoken
 pypdf
 python-docx
