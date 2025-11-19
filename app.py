@@ -14,9 +14,10 @@ st.set_page_config(page_title="IA Labs - Agentes Corporativos", layout="wide")
 
 st.title("⚙️ IA-Labs — Inteligência Corporativa")
 
-# -------------------
-# Seletor de agente
-# -------------------
+
+# ==============================
+# Seleção do agente
+# ==============================
 agente_nome = st.sidebar.selectbox(
     "Escolher agente",
     [
@@ -28,21 +29,23 @@ agente_nome = st.sidebar.selectbox(
     ]
 )
 
-def carregar_agente():
-    if agente_nome == "Assistente Corporativo":
+@st.cache_resource
+def carregar_agente(nome):
+    if nome == "Assistente Corporativo":
         return criar_agente_corporativo()
-    elif agente_nome == "Agente Executivo":
+    elif nome == "Agente Executivo":
         return criar_agente_executivo()
-    elif agente_nome == "Agente Jurídico":
+    elif nome == "Agente Jurídico":
         return criar_agente_juridico()
-    elif agente_nome == "Agente Financeiro":
+    elif nome == "Agente Financeiro":
         return criar_agente_financeiro()
-    elif agente_nome == "Agente de Compliance":
+    elif nome == "Agente de Compliance":
         return criar_agente_compliance()
 
-# -------------------------
+
+# ==============================
 # Upload de documentos
-# -------------------------
+# ==============================
 st.subheader("📄 Enviar documentos")
 files = st.file_uploader("Selecione arquivos", type=["pdf", "docx", "txt"], accept_multiple_files=True)
 
@@ -52,14 +55,18 @@ if files:
     criar_vector_store(chunks)
     st.success("Base atualizada com sucesso!")
 
-# -------------------------
+
+# ==============================
 # Chat com o agente
-# -------------------------
+# ==============================
 st.subheader(f"💬 Conversar com: {agente_nome}")
+
 query = st.text_area("Digite sua pergunta")
 
 if st.button("Enviar"):
-    agente = carregar_agente()
-    resposta = agente.run(query)
+    agente = carregar_agente(agente_nome)
+
+    resposta = agente.invoke({"input": query})
+
     st.write("### Resposta")
-    st.write(resposta)
+    st.write(resposta["output"])
