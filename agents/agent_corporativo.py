@@ -1,44 +1,44 @@
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.agents import AgentExecutor, OpenAIFunctionsAgent
 from langchain.prompts import ChatPromptTemplate
 from config import OPENAI_MODEL
 
 
-# ====== Ferramenta exemplo — buscar em documentos RAG ======
+# ======== Ferramenta de Busca RAG (placeholder) ========
 @tool
 def buscar_documentos(query: str) -> str:
-    """
-    Ferramenta que simula busca em base de conhecimento.
-    Substitua pelo seu vector_store real depois.
-    """
-    return f"Buscando informações relacionadas a: {query}"
+    """Busca conteúdos relevantes em documentos enviados."""
+    return f"Buscando informações sobre: {query}"
 
 
 tools = [buscar_documentos]
 
 
-# ====== PROMPT DO AGENTE ======
+# ======== PROMPT (sistema) ========
 prompt = ChatPromptTemplate.from_messages([
     ("system",
-     "Você é um agente corporativo especializado em análise de documentos "
-     "e respostas empresariais. Use ferramentas sempre que necessário."),
+     "Você é um assistente corporativo especializado em análise documental, "
+     "resumos e respostas profissionais. Sempre utilize ferramentas quando necessário."),
     ("human", "{input}")
 ])
 
 
 def criar_agente_corporativo():
+    # Modelo OpenAI
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
-        temperature=0.2
+        temperature=0.2,
     )
 
-    agent = create_openai_tools_agent(
+    # Agente baseado em Funções OpenAI (Functions)
+    agent = OpenAIFunctionsAgent(
         llm=llm,
         tools=tools,
         prompt=prompt
     )
 
+    # Executor final
     executor = AgentExecutor(
         agent=agent,
         tools=tools,
