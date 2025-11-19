@@ -1,35 +1,17 @@
-from langchain_openai import ChatOpenAI
-from langchain.tools import Tool
-from langchain.agents import create_react_agent, AgentExecutor
-from ingest.vector_store import carregar_vector_store
-from chains.summarizer import chain_resumo
-from config import OPENAI_MODEL
-
+from langchain.agents import AgentExecutor, create_react_agent
+from config import get_llm
 
 def criar_agente_compliance():
-    llm = ChatOpenAI(
-        model=OPENAI_MODEL,
-        temperature=0.05
-    )
+    llm = get_llm()
 
-    vectordb = carregar_vector_store()
-    retriever = vectordb.as_retriever()
+    prompt = """
+Você é um especialista em compliance.
+Explique políticas internas, riscos e boas práticas de governança.
+Mantenha as respostas formais, claras e objetivas.
+"""
 
-    tools = [
-        Tool(
-            name="BuscaGovernanca",
-            func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca normas internas, auditorias e regras de conduta."
-        ),
-        Tool(
-            name="ResumoCompliance",
-            func=lambda texto: chain_resumo.run(texto),
-            description="Resumo técnico sobre conformidade e riscos."
-        )
-    ]
+    agent = create_react_agent(llm=llm, tools=[], prompt=prompt)
 
-    agent = create_react_agent(llm=llm, tools=tools)
-    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    return AgentExecutor(agent=agent, tools=[], verbose=False)
 
-    return executor
 
