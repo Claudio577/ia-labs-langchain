@@ -7,7 +7,7 @@ def dividir_documentos(textos):
     )
 
     chunks = []
-    for t in textos:
-        chunks.extend(splitter.split_text(t))
+    for txt in textos:
+        chunks.extend(splitter.split_text(txt))
 
     return chunks
