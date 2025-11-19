@@ -1,17 +1,20 @@
-from openai import OpenAI
 from langchain_community.vectorstores import Chroma
 
-client = OpenAI()
 
 _vector_store_global = None
 
+
 def criar_vector_store(chunks):
     """
-    Cria a base vetorial usando o cliente oficial da OpenAI,
-    gerando embeddings manualmente.
+    Cria a base vetorial usando embeddings da OpenAI gerados na hora.
     """
     global _vector_store_global
 
+    # IMPORTA AQUI (não no topo!)
+    from openai import OpenAI
+    client = OpenAI()  # agora a chave já foi carregada pelo Streamlit
+
+    # Extrai textos
     textos = [
         c.page_content if hasattr(c, "page_content") else str(c)
         for c in chunks
@@ -26,7 +29,7 @@ def criar_vector_store(chunks):
         )
         embeddings.append(resp.data[0].embedding)
 
-    # Cria a base vetorial Chroma
+    # Cria Chroma
     _vector_store_global = Chroma.from_embeddings(
         embeddings=embeddings,
         metadatas=[{"source": f"chunk_{i}"} for i in range(len(textos))],
