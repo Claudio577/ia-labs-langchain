@@ -1,8 +1,5 @@
 import streamlit as st
 
-# ================================
-# IMPORTAR MÓDULOS INTERNOS
-# ================================
 from ingest.loader import carregar_documentos
 from ingest.splitter import dividir_documentos
 from ingest.vector_store import criar_vector_store
@@ -13,35 +10,15 @@ from agents.agente_juridico import criar_agente_juridico
 from agents.agente_financeiro import criar_agente_financeiro
 from agents.agente_compliance import criar_agente_compliance
 
-# ---------------------------------
-# CONFIGURAÇÃO DO STREAMLIT
-# ---------------------------------
-st.set_page_config(
-    page_title="Inteligência Corporativa",
-    page_icon="⚙️",
-    layout="wide"
-)
+st.set_page_config(page_title="IA Labs - Agentes Corporativos", layout="wide")
 
-# ---------------------------------
-# HEADER
-# ---------------------------------
-st.markdown("""
-<h1 style="color:#1E88E5; text-align:center; font-weight:600;">
-INTELIGÊNCIA CORPORATIVA • AGENTES PROFISSIONAIS
-</h1>
-<p style="text-align:center; font-size:17px; color:#444;">
-Sistema modular de análise assistida por IA, RAG corporativo e agentes especializados.
-</p>
-<hr>
-""", unsafe_allow_html=True)
+st.title("⚙️ IA-Labs — Inteligência Corporativa")
 
-# ---------------------------------
-# SIDEBAR
-# ---------------------------------
-st.sidebar.title("🔎 Seleção de Agente")
-
-agente_escolhido = st.sidebar.selectbox(
-    "Escolha o agente:",
+# -------------------
+# Seletor de agente
+# -------------------
+agente_nome = st.sidebar.selectbox(
+    "Escolher agente",
     [
         "Assistente Corporativo",
         "Agente Executivo",
@@ -52,58 +29,37 @@ agente_escolhido = st.sidebar.selectbox(
 )
 
 def carregar_agente():
-    if agente_escolhido == "Assistente Corporativo":
+    if agente_nome == "Assistente Corporativo":
         return criar_agente_corporativo()
-    elif agente_escolhido == "Agente Executivo":
+    elif agente_nome == "Agente Executivo":
         return criar_agente_executivo()
-    elif agente_escolhido == "Agente Jurídico":
+    elif agente_nome == "Agente Jurídico":
         return criar_agente_juridico()
-    elif agente_escolhido == "Agente Financeiro":
+    elif agente_nome == "Agente Financeiro":
         return criar_agente_financeiro()
-    elif agente_escolhido == "Agente de Compliance":
+    elif agente_nome == "Agente de Compliance":
         return criar_agente_compliance()
 
-# ---------------------------------
-# UPLOAD DE DOCUMENTOS
-# ---------------------------------
-st.subheader("📄 Enviar Documentos")
+# -------------------------
+# Upload de documentos
+# -------------------------
+st.subheader("📄 Enviar documentos")
+files = st.file_uploader("Selecione arquivos", type=["pdf", "docx", "txt"], accept_multiple_files=True)
 
-uploaded_files = st.file_uploader(
-    "Selecione arquivos PDF, DOCX ou TXT",
-    type=["pdf", "docx", "txt"],
-    accept_multiple_files=True
-)
+if files:
+    docs = carregar_documentos(files)
+    chunks = dividir_documentos(docs)
+    criar_vector_store(chunks)
+    st.success("Base atualizada com sucesso!")
 
-if uploaded_files:
-    with st.spinner("Processando documentos..."):
-        docs = carregar_documentos(uploaded_files)
-        chunks = dividir_documentos(docs)
-        criar_vector_store(chunks)
-    st.success("Base de conhecimento atualizada com sucesso!")
-    st.markdown("---")
-
-# ---------------------------------
-# ÁREA DE PERGUNTAS
-# ---------------------------------
-st.subheader(f"💬 Conversar com: **{agente_escolhido}**")
-
-query = st.text_area(
-    "Digite sua pergunta ou descrição da tarefa:",
-    height=120
-)
+# -------------------------
+# Chat com o agente
+# -------------------------
+st.subheader(f"💬 Conversar com: {agente_nome}")
+query = st.text_area("Digite sua pergunta")
 
 if st.button("Enviar"):
-    if not query.strip():
-        st.warning("Digite uma pergunta antes de enviar.")
-    else:
-        agente = carregar_agente()
-        
-        with st.spinner("Processando com IA..."):
-            try:
-                resposta = agente.run(query)
-            except Exception as e:
-                resposta = f"Erro ao processar: {e}"
-
-        st.markdown("### 🔍 Resposta")
-        st.write(resposta)
-
+    agente = carregar_agente()
+    resposta = agente.run(query)
+    st.write("### Resposta")
+    st.write(resposta)
