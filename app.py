@@ -14,7 +14,7 @@ from agents.agente_compliance import criar_agente_compliance
 
 # CONFIGURAÇÃO DO APP
 st.set_page_config(
-    page_title="IA-Labs — Inteligência Corporativa",
+    page_title="Inteligência Corporativa",
     layout="wide",
     page_icon="⚙️"
 )
@@ -24,7 +24,7 @@ st.set_page_config(
 # =======================
 st.markdown("""
 <h1 style='text-align:center; color:#1E88E5; margin-bottom:0'>
-⚙️ IA-Labs — Inteligência Corporativa com LangChain
+Inteligência Corporativa com LangChain
 </h1>
 <p style='text-align:center; font-size:18px; margin-top:0'>
 Sistema profissional de análise corporativa, RAG e agentes inteligentes.
