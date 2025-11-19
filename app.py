@@ -65,9 +65,9 @@ query = st.text_area("Digite sua pergunta")
 
 if st.button("Enviar"):
     agente = carregar_agente()
-    resposta = agente.run(query)
-    st.write("### Resposta")
+    resposta = agente.invoke({"input": query})
     st.write(resposta)
+
 
     resposta = agente.run(query)
 
