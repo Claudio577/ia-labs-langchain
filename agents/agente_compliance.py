@@ -3,14 +3,15 @@ from chains.summarizer import chain_resumo
 from config import get_llm
 from langchain.agents import initialize_agent, AgentType
 
+
 def criar_agente_compliance():
     llm = get_llm()
 
     tools = [
         Tool(
-            name="Análise de Compliance",
+            name="Resumo de Compliance",
             func=chain_resumo,
-            description="Analisa e resume documentos de compliance."
+            description="Resume políticas, normas e auditorias corporativas."
         )
     ]
 
