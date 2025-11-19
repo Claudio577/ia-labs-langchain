@@ -3,6 +3,7 @@ from chains.summarizer import chain_resumo
 from config import get_llm
 from langchain.agents import initialize_agent, AgentType
 
+
 def criar_agente_financeiro():
     llm = get_llm()
 
@@ -10,7 +11,7 @@ def criar_agente_financeiro():
         Tool(
             name="Resumo Financeiro",
             func=chain_resumo,
-            description="Resume relatórios e dados financeiros."
+            description="Resume relatórios e análises financeiras."
         )
     ]
 
