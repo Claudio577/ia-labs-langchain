@@ -1,13 +1,9 @@
 streamlit
-streamlit-option-menu
-
 langchain
 langchain-openai
 langchain-community
 langchain-text-splitters
-
-chromadb
 pypdf
 python-docx
+chromadb
 tiktoken
-reportlab
