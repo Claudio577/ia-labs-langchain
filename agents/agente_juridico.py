@@ -1,50 +1,47 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.tools import Tool
+from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
 def criar_agente_juridico():
+    """Agente jurídico para análise de contratos e documentos legais."""
 
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
-        temperature=0.1
+        temperature=0.0  # jurídico exige precisão
     )
 
     vectordb = carregar_vector_store()
     retriever = vectordb.as_retriever()
 
-    prompt = ChatPromptTemplate.from_template("""
-    Você é o **Agente Jurídico IA-Labs (ContractAI)**.
-    Especialidades:
-    - Análise contratual
-    - Identificação de riscos legais
-    - Obrigações das partes
-    - Cláusulas críticas
-    - Recomendações jurídicas
+    tools = [
+        Tool(
+            name="BuscarClausulas",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Localiza cláusulas e seções relevantes."
+        ),
+        Tool(
+            name="ResumoLegal",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Gera resumo jurídico objetivo."
+        )
+    ]
 
-    Documentos relevantes:
-    {contexto}
+    system_prompt = """
+    Você é um Assistente Jurídico especializado em:
+    - Análise de contratos
+    - Compliance
+    - Riscos legais
+    - Due diligence
 
-    Pergunta:
-    {input}
+    Boas práticas:
+    - Não ofereça aconselhamento jurídico final
+    - Não invente leis
+    - Baseie respostas APENAS nos documentos enviados
+    """
 
-    Gere uma resposta jurídica estruturada:
-
-    ⚖️ Cláusulas relevantes  
-    ⚠️ Riscos legais detectados  
-    📌 Obrigações das partes  
-    🔍 Observações importantes  
-    🛡️ Recomendações para mitigação  
-    """)
-
-    def executar(texto):
-        docs = retriever.get_relevant_documents(texto)
-        contexto = "\n\n".join([d.page_content for d in docs])
-
-        return llm.invoke(prompt.format(contexto=contexto, input=texto)).content
-
-    class Wrapper:
-        def run(self, texto):
-            return executar(texto)
-
-    return Wrapper()
+    agent = create_react_agent(llm=llm, tools=tools, system_message=system_prompt)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    return executor
