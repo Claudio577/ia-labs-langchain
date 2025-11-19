@@ -1,42 +1,48 @@
 from langchain_openai import ChatOpenAI
-from langchain_community.tools import Tool
-from langchain.agents.react.agent import create_react_agent
-from langchain.agents import AgentExecutor
-
-from ingest.vector_store import carregar_vector_store
-from chains.summarizer import chain_resumo
+from langchain.tools import tool
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.prompts import ChatPromptTemplate
 from config import OPENAI_MODEL
 
 
-def criar_agente_corporativo():
+# ====== Ferramenta exemplo — buscar em documentos RAG ======
+@tool
+def buscar_documentos(query: str) -> str:
+    """
+    Ferramenta que simula busca em base de conhecimento.
+    Substitua pelo seu vector_store real depois.
+    """
+    return f"Buscando informações relacionadas a: {query}"
 
+
+tools = [buscar_documentos]
+
+
+# ====== PROMPT DO AGENTE ======
+prompt = ChatPromptTemplate.from_messages([
+    ("system",
+     "Você é um agente corporativo especializado em análise de documentos "
+     "e respostas empresariais. Use ferramentas sempre que necessário."),
+    ("human", "{input}")
+])
+
+
+def criar_agente_corporativo():
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
         temperature=0.2
     )
 
-    vectordb = carregar_vector_store()
-    retriever = vectordb.as_retriever()
-
-    tools = [
-        Tool(
-            name="BuscarDocumentos",
-            func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca trechos relevantes nos documentos enviados."
-        ),
-        Tool(
-            name="ResumoExecutivo",
-            func=lambda texto: chain_resumo.run(texto),
-            description="Gera resumo executivo profissional."
-        )
-    ]
-
-    agent = create_react_agent(llm=llm, tools=tools)
+    agent = create_openai_tools_agent(
+        llm=llm,
+        tools=tools,
+        prompt=prompt
+    )
 
     executor = AgentExecutor(
         agent=agent,
         tools=tools,
-        verbose=True
+        verbose=False
     )
 
     return executor
