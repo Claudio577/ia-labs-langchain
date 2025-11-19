@@ -1,13 +1,12 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.tools import Tool
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableParallel, RunnableLambda
+from langchain_community.tools import Tool
+from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
 from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
-
 def criar_agente_corporativo():
+    """Agente corporativo generalista para análises executivas."""
 
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
@@ -17,38 +16,35 @@ def criar_agente_corporativo():
     vectordb = carregar_vector_store()
     retriever = vectordb.as_retriever()
 
-    tools = {
-        "buscar_documentos": Tool(
+    tools = [
+        Tool(
             name="BuscarDocumentos",
             func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca trechos relevantes nos documentos enviados."
+            description="Busca trechos relevantes nos documentos corporativos."
         ),
-        "resumo_executivo": Tool(
+        Tool(
             name="ResumoExecutivo",
             func=lambda texto: chain_resumo.run(texto),
-            description="Gera um resumo executivo profissional."
+            description="Gera resumo executivo profissional."
         )
-    }
+    ]
 
-    prompt = ChatPromptTemplate.from_template("""
-    Você é o assistente corporativo IA-Labs.
-    Escolha uma das funções:
-    - buscar_documentos
-    - resumo_executivo
+    system_prompt = """
+    Você é um Assistente Corporativo IA de alto nível da IA-Labs.
+    Seu papel:
+    - Analisar documentos
+    - Criar resumos executivos
+    - Apoiar decisões estratégicas
+    - Manter linguagem formal, objetiva e profissional
+    - Nunca inventar dados não encontrados nos documentos
+    """
 
-    Usuário disse: {query}
+    agent = create_react_agent(
+        llm=llm,
+        tools=tools,
+        system_message=system_prompt
+    )
 
-    Responda apenas com o resultado final.
-    """)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    return executor
 
-    def executar(query):
-        return llm.invoke(prompt.format(query=query)).content
-
-    # Cria um executável estilo agente
-    executor = RunnableLambda(lambda x: executar(x["input"]))
-
-    class Wrapper:
-        def run(self, texto):
-            return executor.invoke({"input": texto})
-
-    return Wrapper()
