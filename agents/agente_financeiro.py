@@ -1,51 +1,45 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.tools import Tool
+from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
 def criar_agente_financeiro():
 
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
-        temperature=0.2
+        temperature=0.1
     )
 
     vectordb = carregar_vector_store()
     retriever = vectordb.as_retriever()
 
-    prompt = ChatPromptTemplate.from_template("""
-    Você é o **Agente Financeiro IA-Labs**, especialista em:
-    - análise financeira
-    - riscos
-    - oportunidades
-    - tendências
-    - KPIs financeiros
-    - fluxo de caixa
-    - insights quantitativos
+    tools = [
+        Tool(
+            name="BuscarDadosFinanceiros",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Busca informações financeiras nos documentos."
+        ),
+        Tool(
+            name="ResumoFinanceiro",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Cria resumo com foco financeiro."
+        )
+    ]
 
-    Documentos relevantes:
-    {contexto}
+    system_prompt = """
+    Você é um Analista Financeiro IA especializado em:
+    - DRE, fluxo de caixa, balanço patrimonial
+    - Análises de risco
+    - Indicadores financeiros
 
-    Pergunta:
-    {input}
+    Regras:
+    - Seja objetivo
+    - Não invente números
+    - Só use dados presentes nos documentos enviados
+    """
 
-    Gere uma resposta profissional contendo:
-
-    💰 Insight financeiro  
-    ⚠️ Riscos financeiros  
-    📈 Oportunidades  
-    📊 Indicadores e KPIs  
-    🧮 Análise numérica (se houver dados)  
-    🧠 Ações recomendadas  
-    """)
-
-    def executar(texto):
-        docs = retriever.get_relevant_documents(texto)
-        contexto = "\n\n".join([d.page_content for d in docs])
-        return llm.invoke(prompt.format(contexto=contexto, input=texto)).content
-
-    class Wrapper:
-        def run(self, texto):
-            return executar(texto)
-
-    return Wrapper()
+    agent = create_react_agent(llm=llm, tools=tools, system_message=system_prompt)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    return executor
