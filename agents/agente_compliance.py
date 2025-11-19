@@ -1,49 +1,46 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.tools import Tool
+from langchain.agents import AgentExecutor, create_react_agent
 from ingest.vector_store import carregar_vector_store
+from chains.summarizer import chain_resumo
 from config import OPENAI_MODEL
 
 def criar_agente_compliance():
 
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
-        temperature=0.2
+        temperature=0.0
     )
 
     vectordb = carregar_vector_store()
     retriever = vectordb.as_retriever()
 
-    prompt = ChatPromptTemplate.from_template("""
-    Você é o **Agente de Compliance IA-Labs**, especializado em:
-    - normas internas
-    - políticas corporativas
-    - identificação de não conformidades
-    - riscos operacionais
-    - governança
-    - recomendações de conformidade
+    tools = [
+        Tool(
+            name="BuscarRiscos",
+            func=lambda q: retriever.get_relevant_documents(q),
+            description="Localiza indícios de riscos e não conformidades."
+        ),
+        Tool(
+            name="ResumoCompliance",
+            func=lambda texto: chain_resumo.run(texto),
+            description="Cria resumo com foco em riscos e compliance."
+        )
+    ]
 
-    Documentos relevantes:
-    {contexto}
+    system_prompt = """
+    Você é um Assistente de Compliance e Riscos.
+    Objetivo:
+    - Identificar riscos
+    - Mapear não conformidades
+    - Avaliar governança
+    - Sugerir pontos críticos
 
-    Pergunta:
-    {input}
+    Importante:
+    - Nunca inventar alertas sem base documental
+    - Ser claro e técnico
+    """
 
-    Gere uma resposta de compliance:
-
-    🛡️ Pontos críticos  
-    ⚠️ Não conformidades identificadas  
-    📌 Riscos operacionais  
-    📋 Políticas relacionadas  
-    🧠 Recomendações IA-Labs  
-    """)
-
-    def executar(texto):
-        docs = retriever.get_relevant_documents(texto)
-        contexto = "\n\n".join([d.page_content for d in docs])
-        return llm.invoke(prompt.format(contexto=contexto, input=texto)).content
-
-    class Wrapper:
-        def run(self, texto):
-            return executar(texto)
-
-    return Wrapper()
+    agent = create_react_agent(llm=llm, tools=tools, system_message=system_prompt)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    return executor
