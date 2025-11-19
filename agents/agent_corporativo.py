@@ -1,8 +1,10 @@
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor
+from langchain.agents.react import create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
-from langchain_core.prompts import PromptTemplate
+from langchain import hub
+
 
 def criar_agente_corporativo():
     llm = get_llm()
@@ -15,15 +17,8 @@ def criar_agente_corporativo():
         )
     ]
 
-    prompt = PromptTemplate(
-        template="""
-Você é um assistente corporativo especializado em comunicação empresarial.
-Responda com clareza, objetividade e foco em tomada de decisão.
-
-Pergunta do usuário: {input}
-""",
-        input_variables=["input"],
-    )
+    # Carrega o prompt correto do LangChain Hub
+    prompt = hub.pull("hwchase17/react")
 
     agent = create_react_agent(
         llm=llm,
@@ -31,4 +26,9 @@ Pergunta do usuário: {input}
         prompt=prompt
     )
 
-    return AgentExecutor(agent=agent, tools=tools, verbose=False)
+    return AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=False,
+        handle_parsing_errors=True
+    )
