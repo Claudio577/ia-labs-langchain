@@ -3,8 +3,7 @@ from chains.summarizer import chain_resumo
 from config import get_llm
 
 from langchain.agents import AgentExecutor
-from langchain.agents.react import ReactAgent
-from langchain import hub
+from langchain_community.agent_toolkits import initialize_react_agent
 
 
 def criar_agente_corporativo():
@@ -18,13 +17,11 @@ def criar_agente_corporativo():
         )
     ]
 
-    # Prompt oficial do REACT
-    prompt = hub.pull("hwchase17/react")
-
-    agent = ReactAgent.from_llm_and_tools(
-        llm=llm,
+    # Inicializa um agente REACT totalmente compatível
+    agent = initialize_react_agent(
         tools=tools,
-        prompt=prompt,
+        llm=llm,
+        verbose=False
     )
 
     executor = AgentExecutor(
@@ -35,3 +32,4 @@ def criar_agente_corporativo():
     )
 
     return executor
+
