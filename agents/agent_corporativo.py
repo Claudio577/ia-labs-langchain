@@ -1,5 +1,5 @@
 from langchain.agents import AgentExecutor
-from langchain.agents.react.agent import create_react_agent
+from langchain.agents.react import create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
@@ -11,14 +11,14 @@ def criar_agente_corporativo():
         Tool(
             name="Resumo de Conteúdo",
             func=chain_resumo,
-            description="Gera resumos objetivos para documentos longos ou relatórios."
+            description="Gera resumos corporativos profissionais."
         )
     ]
 
     prompt = """
-Você é um assistente corporativo especializado.
-Forneça respostas claras, profissionais e diretas.
-Se precisar resumir conteúdo, use a ferramenta de resumo.
+Você é um assistente corporativo profissional. 
+Forneça respostas claras, diretas e objetivas.
+Se precisar, use ferramentas de resumo ou análise.
 """
 
     agent = create_react_agent(
