@@ -1,29 +1,26 @@
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from config import get_llm
+from langchain.tools import Tool
 from chains.summarizer import chain_resumo
-
+from config import get_llm
+from langchain.agents import initialize_agent, AgentType
 
 def criar_agente_corporativo():
     llm = get_llm()
 
-    prompt = PromptTemplate.from_template(
-        """
-        Você é um assistente corporativo profissional especializado em responder com clareza,
-        objetividade e foco executivo.
+    tools = [
+        Tool(
+            name="Resumo Corporativo",
+            func=chain_resumo,
+            description="Gera resumos corporativos profissionais."
+        )
+    ]
 
-        Caso o usuário peça resumo, chame esta função de resumo:
-        {resumo_func}
-
-        Pergunta:
-        {input}
-        """
-    )
-
-    chain = LLMChain(
+    agent = initialize_agent(
+        tools=tools,
         llm=llm,
-        prompt=prompt,
-        verbose=False
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=False,
+        handle_parsing_errors=True,
     )
 
-    return chain
+    return agent
+
