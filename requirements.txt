@@ -1,12 +1,12 @@
 streamlit==1.39.0
 
-# LangChain — versões estáveis e compatíveis
+# LangChain — versões estáveis e compatíveis com OpenAI v2025
 langchain==0.2.14
 langchain-core==0.2.36
 langchain-community==0.2.12
 langchain-openai==0.1.22
 
-# VectorDB
+# Vector DB
 faiss-cpu
 chromadb==0.5.5
 
@@ -15,4 +15,4 @@ tiktoken
 pypdf
 python-docx
 python-dotenv
-openai>=1.29.0
+openai==1.32.0
