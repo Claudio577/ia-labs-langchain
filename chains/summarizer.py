@@ -4,7 +4,7 @@ def chain_resumo(texto):
     llm = get_llm()
 
     prompt = f"""
-Resuma de forma objetiva e corporativa o conteúdo abaixo:
+Resuma o conteúdo abaixo de forma corporativa, objetiva e clara:
 
 {texto}
 
