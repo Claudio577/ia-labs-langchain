@@ -1,8 +1,7 @@
-from langchain.agents import AgentExecutor, create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
-from langchain_core.prompts import PromptTemplate
+from langchain.agents import initialize_agent, AgentType
 
 def criar_agente_financeiro():
     llm = get_llm()
@@ -11,25 +10,17 @@ def criar_agente_financeiro():
         Tool(
             name="Resumo Financeiro",
             func=chain_resumo,
-            description="Cria resumos com foco em finanças, indicadores e análises."
+            description="Resume relatórios e dados financeiros."
         )
     ]
 
-    prompt = PromptTemplate(
-        template="""
-Você é um analista financeiro corporativo especialista em dados, relatórios e indicadores.
-Foque em clareza, precisão e análise objetiva.
-
-Pergunta do usuário: {input}
-""",
-        input_variables=["input"],
-    )
-
-    agent = create_react_agent(
-        llm=llm,
+    agent = initialize_agent(
         tools=tools,
-        prompt=prompt
+        llm=llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=False,
+        handle_parsing_errors=True
     )
 
-    return AgentExecutor(agent=agent, tools=tools, verbose=False)
+    return agent
 
