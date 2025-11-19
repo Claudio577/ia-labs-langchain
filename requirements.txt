@@ -1,9 +1,9 @@
 streamlit
 langchain==0.3.11
-langchain-community
-langchain-openai
+langchain-community==0.3.11
+langchain-openai==0.1.2
 langchain-text-splitters
+chromadb
 pypdf
 python-docx
 tiktoken
-chromadb
