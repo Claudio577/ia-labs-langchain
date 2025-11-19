@@ -14,4 +14,4 @@ tiktoken
 pypdf
 python-docx
 python-dotenv
-openai==1.32.0
+openai==1.40.2
