@@ -35,7 +35,7 @@ Sistema profissional de análise corporativa, RAG e agentes inteligentes.
 # ==========================================================
 # SIDEBAR — ESCOLHA DO AGENTE IA-LABS
 # ==========================================================
-st.sidebar.title("🤖 Escolher Agente IA-Labs")
+st.sidebar.title("🤖 Escolher Agente")
 
 agente_escolhido = st.sidebar.selectbox(
     "Selecione o tipo de análise:",
