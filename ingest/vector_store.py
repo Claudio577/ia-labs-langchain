@@ -1,16 +1,12 @@
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 
-# -----------------------------------------------
-# Armazena a Vector Store globalmente
-# -----------------------------------------------
 _vector_store_global = None
 
-
-# -----------------------------------------------
-# Criação da base vetorial
-# -----------------------------------------------
 def criar_vector_store(chunks):
+    """
+    Cria a base vetorial usando ChromaDB.
+    """
     global _vector_store_global
 
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -20,17 +16,18 @@ def criar_vector_store(chunks):
         for c in chunks
     ]
 
-    _vector_store_global = FAISS.from_texts(textos, embeddings)
+    _vector_store_global = Chroma.from_texts(
+        texts=textos,
+        embedding=embeddings,
+        collection_name="ia_labs_docs"
+    )
+
     return _vector_store_global
 
 
-# -----------------------------------------------
-# Retorno da vector store
-# -----------------------------------------------
 def get_vector_store():
     """
-    Retorna a vector store carregada.
-    Levanta erro caso nenhum documento tenha sido enviado ainda.
+    Retorna a vector store.
     """
     if _vector_store_global is None:
         raise ValueError("Nenhum documento foi carregado ainda.")
