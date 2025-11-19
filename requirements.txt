@@ -1,7 +1,7 @@
 streamlit
 langchain==0.3.11
-langchain-community==0.3.11
-langchain-openai==0.1.2
+langchain-community
+langchain-openai
 langchain-text-splitters
 pypdf
 python-docx
