@@ -1,8 +1,9 @@
-from langchain.agents import AgentExecutor
-from langchain.agents.react import create_react_agent
 from langchain.tools import Tool
 from chains.summarizer import chain_resumo
 from config import get_llm
+
+from langchain.agents import AgentExecutor
+from langchain.agents.react import ReactAgent
 from langchain import hub
 
 
@@ -17,18 +18,20 @@ def criar_agente_corporativo():
         )
     ]
 
-    # Carrega o prompt correto do LangChain Hub
+    # Prompt oficial do REACT
     prompt = hub.pull("hwchase17/react")
 
-    agent = create_react_agent(
+    agent = ReactAgent.from_llm_and_tools(
         llm=llm,
         tools=tools,
-        prompt=prompt
+        prompt=prompt,
     )
 
-    return AgentExecutor(
+    executor = AgentExecutor(
         agent=agent,
         tools=tools,
         verbose=False,
         handle_parsing_errors=True
     )
+
+    return executor
