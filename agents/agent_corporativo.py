@@ -19,19 +19,16 @@ def criar_agente_corporativo():
         Tool(
             name="BuscarDocumentos",
             func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca trechos relevantes nos documentos enviados."
+            description="Busca trechos relevantes nos documentos corporativos."
         ),
         Tool(
             name="ResumoExecutivo",
             func=lambda texto: chain_resumo.run(texto),
-            description="Gera resumo executivo profissional."
+            description="Cria resumo executivo profissional de textos longos."
         )
     ]
 
-    agent = create_react_agent(
-        llm=llm,
-        tools=tools
-    )
+    agent = create_react_agent(llm=llm, tools=tools)
 
     executor = AgentExecutor(
         agent=agent,
