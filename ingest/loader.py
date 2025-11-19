@@ -1,21 +1,23 @@
-from langchain_community.document_loaders import (
-    PyPDFLoader, Docx2txtLoader, TextLoader
-)
-from io import BytesIO
+from pypdf import PdfReader
+from docx import Document
 
-def carregar_documentos(uploaded_files):
+def carregar_documentos(files):
     documentos = []
 
-    for uploaded in uploaded_files:
-        file_bytes = uploaded.read()
+    for f in files:
+        if f.name.endswith(".pdf"):
+            reader = PdfReader(f)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() or ""
+            documentos.append(text)
 
-        if uploaded.type == "application/pdf":
-            loader = PyPDFLoader(BytesIO(file_bytes))
-        elif "word" in uploaded.type:
-            loader = Docx2txtLoader(BytesIO(file_bytes))
-        else:
-            loader = TextLoader(BytesIO(file_bytes))
+        elif f.name.endswith(".docx"):
+            doc = Document(f)
+            text = "\n".join([p.text for p in doc.paragraphs])
+            documentos.append(text)
 
-        documentos.extend(loader.load())
+        elif f.name.endswith(".txt"):
+            documentos.append(f.read().decode("utf-8"))
 
     return documentos
