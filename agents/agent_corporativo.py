@@ -3,7 +3,7 @@ from chains.summarizer import chain_resumo
 from config import get_llm
 
 from langchain.agents import AgentExecutor
-from langchain_community.agent_toolkits import initialize_react_agent
+from langchain.agents.react import create_react_agent_via_langgraph
 
 
 def criar_agente_corporativo():
@@ -17,11 +17,11 @@ def criar_agente_corporativo():
         )
     ]
 
-    # Inicializa um agente REACT totalmente compatível
-    agent = initialize_react_agent(
-        tools=tools,
+    # Agente REACT moderno via LangGraph (compatível!)
+    agent = create_react_agent_via_langgraph(
         llm=llm,
-        verbose=False
+        tools=tools,
+        state_modifier="Você é um assistente corporativo profissional. Responda com clareza."
     )
 
     executor = AgentExecutor(
