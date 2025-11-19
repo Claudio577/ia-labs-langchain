@@ -1,39 +1,30 @@
-from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
 from langchain.tools import Tool
-from langchain.agents import create_react_agent, AgentExecutor
-from ingest.vector_store import carregar_vector_store
 from chains.summarizer import chain_resumo
-from config import OPENAI_MODEL
-
+from config import get_llm
 
 def criar_agente_corporativo():
-    llm = ChatOpenAI(
-        model=OPENAI_MODEL,
-        temperature=0.2
-    )
-
-    vectordb = carregar_vector_store()
-    retriever = vectordb.as_retriever()
+    llm = get_llm()
 
     tools = [
         Tool(
-            name="BuscarDocumentos",
-            func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca trechos relevantes nos documentos corporativos."
-        ),
-        Tool(
-            name="ResumoExecutivo",
-            func=lambda texto: chain_resumo.run(texto),
-            description="Cria resumo executivo profissional de textos longos."
+            name="Resumo de Conteúdo",
+            func=chain_resumo,
+            description="Gera resumos objetivos para documentos longos ou relatórios."
         )
     ]
 
-    agent = create_react_agent(llm=llm, tools=tools)
+    prompt = """
+Você é um assistente corporativo especializado.
+Forneça respostas claras, profissionais e diretas.
+Se precisar resumir conteúdo, use a ferramenta de resumo.
+"""
 
-    executor = AgentExecutor(
-        agent=agent,
+    agent = create_react_agent(
+        llm=llm,
         tools=tools,
-        verbose=True
+        prompt=prompt
     )
 
-    return executor
+    return AgentExecutor(agent=agent, tools=tools, verbose=False)
+
