@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_community.tools import Tool
-from langchain.agents.react.base import create_react_agent
+from langchain.agents.react.agent import create_react_agent
 from langchain.agents import AgentExecutor
 
 from ingest.vector_store import carregar_vector_store
@@ -9,7 +9,6 @@ from config import OPENAI_MODEL
 
 
 def criar_agente_corporativo():
-    """Agente corporativo compatível com LangChain moderno."""
 
     llm = ChatOpenAI(
         model=OPENAI_MODEL,
@@ -23,26 +22,16 @@ def criar_agente_corporativo():
         Tool(
             name="BuscarDocumentos",
             func=lambda q: retriever.get_relevant_documents(q),
-            description="Busca trechos relevantes nos documentos empresariais."
+            description="Busca trechos relevantes nos documentos enviados."
         ),
         Tool(
             name="ResumoExecutivo",
             func=lambda texto: chain_resumo.run(texto),
-            description="Gera resumo executivo corporativo."
-        ),
+            description="Gera resumo executivo profissional."
+        )
     ]
 
-    system_prompt = """
-    Você é um assistente corporativo especializado em análise de documentos,
-    padronização, insights estratégicos e apoio à tomada de decisão.
-    Fale de forma clara, objetiva, profissional.
-    """
-
-    agent = create_react_agent(
-        llm=llm,
-        tools=tools,
-        system_message=system_prompt
-    )
+    agent = create_react_agent(llm=llm, tools=tools)
 
     executor = AgentExecutor(
         agent=agent,
@@ -51,3 +40,4 @@ def criar_agente_corporativo():
     )
 
     return executor
+
