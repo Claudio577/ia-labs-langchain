@@ -3,14 +3,15 @@ from chains.summarizer import chain_resumo
 from config import get_llm
 from langchain.agents import initialize_agent, AgentType
 
-def criar_agente_corporativo():
+
+def criar_agente_executivo():
     llm = get_llm()
 
     tools = [
         Tool(
-            name="Resumo de Conteúdo",
+            name="Resumo Executivo",
             func=chain_resumo,
-            description="Gera resumos corporativos profissionais."
+            description="Gera resumos estratégicos para decisões executivas."
         )
     ]
 
